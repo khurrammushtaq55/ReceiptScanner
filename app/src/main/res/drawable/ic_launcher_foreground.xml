@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="98dp" android:height="108dp"
+    android:viewportWidth="98" android:viewportHeight="108">
+    <!-- White rounded rectangle -->
+    <path android:fillColor="#FFFFFF" android:pathData="M24,20 h60 a8,8 0 0 1 8,8 v52 a8,8 0 0 1 -8,8 h-60 a8,8 0 0 1 -8,-8 v-52 a8,8 0 0 1 8,-8 z"/>
+    <!-- Zigzag top (receipt teeth) -->
+    <path android:fillColor="#2E7D32" android:pathData="M24,32 l6,4 l6,-4 l6,4 l6,-4 l6,4 l6,-4 l6,4 l6,-4 l6,4 v4 h-60 z" />
+    <!-- Lines (text) -->
+    <path android:fillColor="#2E7D32" android:pathData="M32,50 h44 v4 h-44 z"/>
+    <path android:fillColor="#2E7D32" android:pathData="M32,60 h44 v4 h-44 z"/>
+    <path android:fillColor="#2E7D32" android:pathData="M32,70 h30 v4 h-30 z"/>
+</vector>
