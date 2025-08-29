@@ -24,9 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +93,11 @@ fun HomeScreen(
             LargeTopAppBar(
                 title = { Text("Smart Receipt Scanner") }
             )
-        }
+        },
+        bottomBar = {
+            BannerAd(
+            )
+        },
     ) { pad ->
         Column(
             modifier = modifier
@@ -109,7 +119,10 @@ fun HomeScreen(
                     .padding(20.dp)
             ) {
                 Column {
-                    Text("Get started", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold))
+                    Text(
+                        "Get started",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                    )
                     Spacer(Modifier.height(6.dp))
                     Text(
                         "Scan a new receipt or import from your gallery or files. On-device OCR keeps your data private.",
@@ -160,9 +173,17 @@ private fun FeatureCard(
             Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp))
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
                 Spacer(Modifier.height(4.dp))
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -184,7 +205,9 @@ private fun takePersistableIfPossible(context: Context, uri: Uri) {
     } catch (_: SecurityException) {
         // Some pickers/providers won't allow it; ignore.
     }
+
 }
+
 @Preview
 @Composable
 fun FeatureCardPreview() {

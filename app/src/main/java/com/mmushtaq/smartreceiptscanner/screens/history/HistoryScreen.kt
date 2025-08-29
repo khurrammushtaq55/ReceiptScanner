@@ -1,5 +1,6 @@
 package com.mmushtaq.smartreceiptscanner.screens.history
 
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,9 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 import com.mmushtaq.smartreceiptscanner.core.data.db.ReceiptEntity
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import org.koin.androidx.compose.koinViewModel
@@ -45,7 +48,10 @@ fun HistoryScreen(
                     }
                 }
             )
-        }
+        }, bottomBar = {
+            BannerAd(
+            )
+        },
     ) { pad ->
         Column(Modifier
             .padding(pad)
