@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Smart Receipt Scanner</string>
+
+    <!-- TODO: replace these with your real AdMob IDs in release -->
+    <string name="admob_app_id">ca-app-pub-5966317256433132~5431696514</string>
+    <string name="admob_banner_id">ca-app-pub-5966317256433132/7566905263</string>
+    <string name="admob_interstitial_id">ca-app-pub-5966317256433132/5949768937</string>
+    <string name="admob_rewarded_id">ca-app-pub-xxxxxxxxxxxxxxxx/cccccccccc</string>
+
+    <!-- Google test unit IDs (safe to commit; use only in debug/dev) -->
+    <string name="admob_test_banner">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="admob_test_interstitial">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="admob_test_rewarded">ca-app-pub-3940256099942544/5224354917</string>
+
+
 </resources>

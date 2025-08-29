@@ -74,6 +74,14 @@ dependencies {
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
 
+    implementation(libs.guava)
+
+    //Ads
+    // Google Mobile Ads SDK (AdMob)
+    implementation(libs.play.services.ads)
+    // UMP (User Messaging Platform) for GDPR/EEA consent
+//    implementation(libs.user.messaging.platform)
+
     // Thumbnails
     implementation(libs.coil.compose)
     testImplementation(libs.junit)
