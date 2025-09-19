@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Cerca esercente o testo…</string>
+    <string name="no_receipts_yet">Ancora nessuna ricevuta. Scansiona o importa per visualizzarle qui.</string>
+    <string name="capturing">Acquisizione in corso...</string>
+    <string name="capture">Acquisisci</string>
+    <string name="camera">Fotocamera</string>
+    <string name="gallery">Galleria</string>
+    <string name="pdf">PDF</string>
+    <string name="history">Cronologia</string>
+    <string name="capture_a_new_receipt">Acquisisci una nuova ricevuta</string>
+    <string name="import_a_photo_of_a_receipt">Importa una foto della ricevuta</string>
+    <string name="import_a_pdf_of_a_receipt">Importa un PDF della ricevuta</string>
+    <string name="view_your_saved_receipts">Visualizza le ricevute salvate</string>
+    <string name="scan_a_new_receipt">Scansiona una nuova ricevuta o importa da galleria o file. L’OCR sul dispositivo mantiene privati i tuoi dati.</string>
+    <string name="details">Dettagli</string>
+    <string name="merchant">Esercente</string>
+    <string name="currency">Valuta</string>
+    <string name="total">Totale</string>
+    <string name="no_text_detected">(Nessun testo rilevato)</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">Salva</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Buscar comercio o texto…</string>
+    <string name="no_receipts_yet">Aún no hay recibos. Escanea o importa para verlos aquí.</string>
+    <string name="capturing">Capturando...</string>
+    <string name="capture">Capturar</string>
+    <string name="camera">Cámara</string>
+    <string name="gallery">Galería</string>
+    <string name="pdf">PDF</string>
+    <string name="history">Historial</string>
+    <string name="capture_a_new_receipt">Capturar un recibo nuevo</string>
+    <string name="import_a_photo_of_a_receipt">Importar una foto del recibo</string>
+    <string name="import_a_pdf_of_a_receipt">Importar un PDF del recibo</string>
+    <string name="view_your_saved_receipts">Ver tus recibos guardados</string>
+    <string name="scan_a_new_receipt">Escanea un recibo nuevo o impórtalo desde la galería o archivos. El OCR en el dispositivo protege tus datos.</string>
+    <string name="details">Detalles</string>
+    <string name="merchant">Comercio</string>
+    <string name="currency">Divisa</string>
+    <string name="total">Total</string>
+    <string name="no_text_detected">(No se detectó texto)</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+</resources>

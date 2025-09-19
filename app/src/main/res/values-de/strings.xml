@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Händler oder Text suchen…</string>
+    <string name="no_receipts_yet">Noch keine Belege. Scannen oder importieren, um sie hier zu sehen.</string>
+    <string name="capturing">Aufnahme läuft...</string>
+    <string name="capture">Aufnehmen</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galerie</string>
+    <string name="pdf">PDF</string>
+    <string name="history">Historie</string>
+    <string name="capture_a_new_receipt">Neuen Beleg aufnehmen</string>
+    <string name="import_a_photo_of_a_receipt">Belegfoto importieren</string>
+    <string name="import_a_pdf_of_a_receipt">Beleg als PDF importieren</string>
+    <string name="view_your_saved_receipts">Gespeicherte Belege ansehen</string>
+    <string name="scan_a_new_receipt">Neuen Beleg scannen oder aus Galerie/Dateien importieren. On-Device-OCR schützt deine Daten.</string>
+    <string name="details">Details</string>
+    <string name="merchant">Händler</string>
+    <string name="currency">Währung</string>
+    <string name="total">Gesamt</string>
+    <string name="no_text_detected">(Kein Text erkannt)</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">가맹점 또는 텍스트 검색…</string>
+    <string name="no_receipts_yet">아직 영수증이 없습니다. 스캔하거나 가져오면 여기에서 볼 수 있어요.</string>
+    <string name="capturing">촬영 중...</string>
+    <string name="capture">촬영</string>
+    <string name="camera">카메라</string>
+    <string name="gallery">갤러리</string>
+    <string name="pdf">PDF</string>
+    <string name="history">기록</string>
+    <string name="capture_a_new_receipt">새 영수증 촬영</string>
+    <string name="import_a_photo_of_a_receipt">영수증 사진 가져오기</string>
+    <string name="import_a_pdf_of_a_receipt">영수증 PDF 가져오기</string>
+    <string name="view_your_saved_receipts">저장된 영수증 보기</string>
+    <string name="scan_a_new_receipt">새 영수증을 스캔하거나 갤러리/파일에서 가져오세요. 기기 내 OCR로 데이터가 보호됩니다.</string>
+    <string name="details">세부정보</string>
+    <string name="merchant">상점명</string>
+    <string name="currency">통화</string>
+    <string name="total">합계</string>
+    <string name="no_text_detected">(텍스트가 감지되지 않았습니다)</string>
+    <string name="cancel">취소</string>
+    <string name="save">저장</string>
+</resources>

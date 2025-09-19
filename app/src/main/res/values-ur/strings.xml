@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">تاجر یا متن تلاش کریں…</string>
+    <string name="no_receipts_yet">ابھی کوئی رسید نہیں۔ یہاں دیکھنے کے لیے اسکین کریں یا امپورٹ کریں۔</string>
+    <string name="capturing">کیپچر ہو رہا ہے...</string>
+    <string name="capture">کیپچر</string>
+    <string name="camera">کیمرہ</string>
+    <string name="gallery">گیلری</string>
+    <string name="pdf">PDF</string>
+    <string name="history">ہسٹری</string>
+    <string name="capture_a_new_receipt">نئی رسید کیپچر کریں</string>
+    <string name="import_a_photo_of_a_receipt">رسید کی تصویر امپورٹ کریں</string>
+    <string name="import_a_pdf_of_a_receipt">رسید کا PDF امپورٹ کریں</string>
+    <string name="view_your_saved_receipts">محفوظ کردہ رسیدیں دیکھیں</string>
+    <string name="scan_a_new_receipt">نئی رسید اسکین کریں یا گیلری/فائلز سے امپورٹ کریں۔ آن ڈیوائس OCR آپ کا ڈیٹا نجی رکھتا ہے۔</string>
+    <string name="details">تفصیلات</string>
+    <string name="merchant">مرچنٹ</string>
+    <string name="currency">کرنسی</string>
+    <string name="total">کل</string>
+    <string name="no_text_detected">(کوئی متن نہیں ملا)</string>
+    <string name="cancel">منسوخ کریں</string>
+    <string name="save">محفوظ کریں</string>
+</resources>

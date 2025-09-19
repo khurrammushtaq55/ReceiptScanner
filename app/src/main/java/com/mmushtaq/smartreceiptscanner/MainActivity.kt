@@ -1,29 +1,28 @@
 package com.mmushtaq.smartreceiptscanner
 
-import android.net.Uri
+import android.app.Activity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.mmushtaq.smartreceiptscanner.ads.AdsInitializer
+import com.mmushtaq.smartreceiptscanner.ads.InterstitialAdManager
 import com.mmushtaq.smartreceiptscanner.screens.CaptureScreen
 import com.mmushtaq.smartreceiptscanner.screens.HomeScreen
 import com.mmushtaq.smartreceiptscanner.screens.ReviewScreen
@@ -31,10 +30,6 @@ import com.mmushtaq.smartreceiptscanner.screens.history.HistoryScreen
 import com.mmushtaq.smartreceiptscanner.screens.utils.LoadingOverlay
 import com.mmushtaq.smartreceiptscanner.screens.utils.rememberMainAppState
 import com.mmushtaq.smartreceiptscanner.ui.theme.AppTheme
-import com.mmushtaq.smartreceiptscanner.util.PdfUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
@@ -44,6 +39,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        AdsInitializer.init(this /*, testDeviceIds = listOf("85A8F6E80A77E80AEC833CA3993A7071") */)
 
         setContent {
             // If you set up AppTheme earlier, use that; otherwise MaterialTheme is fine.
@@ -56,13 +52,19 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     snackbarHost = { SnackbarHost(app.snackbarHostState) }
                 ) { pad ->
-                    Box(Modifier.padding(pad).fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .padding(pad)
+                            .fillMaxSize()
+                    ) {
                         when (app.current) {
                             Screen.Home -> HomeScreen(
-                                onOpenCamera  = app::onOpenCamera,
+                                onOpenCamera = app::onOpenCamera,
                                 onImagePicked = app::onImagePicked,
-                                onPdfPicked   = app::onPdfPicked,
-                                onOpenHistory = { app.navigate(Screen.History) }
+                                onPdfPicked = app::onPdfPicked,
+                                onOpenHistory = {
+                                    app.navigate(Screen.History)
+                                }
                             )
 
                             Screen.Camera -> CaptureScreen(
@@ -83,10 +85,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            Screen.History -> HistoryScreen(
-                                onBack = { app.onBack() },
-                                onOpenDetail = { /* TODO: detail */ }
-                            )
+                            Screen.History -> {
+                                HistoryScreenWithAdOnBack(onBack = { app.onBack() })
+                            }
                         }
 
                         if (app.isRendering) LoadingOverlay()
@@ -95,6 +96,28 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
+}
+
+@Composable
+fun HistoryScreenWithAdOnBack(onBack: () -> Unit) {
+    val activity = LocalActivity.current as Activity
+    val interstitial = remember { InterstitialAdManager(activity) }
+    LaunchedEffect(Unit) { interstitial.load() }
+
+    BackHandler {
+        if (interstitial.isReady) {
+            interstitial.show {
+                interstitial.load()   // preload next
+                onBack()              // navigate after ad closes
+            }
+        } else {
+            onBack()
+        }
+    }
+
+    HistoryScreen(onBack = onBack, onOpenDetail = { /* ... */ })
 }
 
 sealed class Screen {
