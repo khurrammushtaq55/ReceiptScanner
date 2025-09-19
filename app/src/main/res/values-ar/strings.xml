@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">ابحث عن تاجر أو نص…</string>
+    <string name="no_receipts_yet">لا توجد إيصالات بعد. امسح أو استورد لرؤيتها هنا.</string>
+    <string name="capturing">جارٍ الالتقاط...</string>
+    <string name="capture">التقاط</string>
+    <string name="camera">الكاميرا</string>
+    <string name="gallery">المعرض</string>
+    <string name="pdf">PDF</string>
+    <string name="history">السجل</string>
+    <string name="capture_a_new_receipt">التقاط إيصال جديد</string>
+    <string name="import_a_photo_of_a_receipt">استيراد صورة إيصال</string>
+    <string name="import_a_pdf_of_a_receipt">استيراد إيصال بصيغة PDF</string>
+    <string name="view_your_saved_receipts">عرض الإيصالات المحفوظة</string>
+    <string name="scan_a_new_receipt">امسح إيصالًا جديدًا أو استورده من المعرض أو الملفات. يضمن OCR على الجهاز خصوصية بياناتك.</string>
+    <string name="details">التفاصيل</string>
+    <string name="merchant">المتجر</string>
+    <string name="currency">العملة</string>
+    <string name="total">الإجمالي</string>
+    <string name="no_text_detected">(لم يتم اكتشاف نص)</string>
+    <string name="cancel">إلغاء</string>
+    <string name="save">حفظ</string>
+</resources>

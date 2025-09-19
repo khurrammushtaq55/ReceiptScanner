@@ -3,12 +3,21 @@ package com.mmushtaq.smartreceiptscanner.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -17,8 +26,14 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Collections
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,10 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
+import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,20 +82,24 @@ fun HomeScreen(
 
     // --- Actions model for grid ---
     val actions = listOf(
-        HomeAction("Camera", "Capture a new receipt", Icons.Outlined.CameraAlt) {
+        HomeAction(stringResource(R.string.camera),
+            stringResource(R.string.capture_a_new_receipt), Icons.Outlined.CameraAlt) {
             onOpenCamera()
         },
-        HomeAction("Gallery", "Import a photo of a receipt", Icons.Outlined.Collections) {
+        HomeAction(stringResource(R.string.gallery),
+            stringResource(R.string.import_a_photo_of_a_receipt), Icons.Outlined.Collections) {
             if (ActivityResultContracts.PickVisualMedia.isPhotoPickerAvailable(context)) {
                 pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             } else {
                 openDocImage.launch(arrayOf("image/*"))
             }
         },
-        HomeAction("PDF", "Import a PDF of a receipt", Icons.Outlined.Description) {
+        HomeAction(stringResource(R.string.pdf),
+            stringResource(R.string.import_a_pdf_of_a_receipt), Icons.Outlined.Description) {
             openPdf.launch(arrayOf("application/pdf"))
         },
-        HomeAction("History", "View your saved receipts", Icons.Outlined.History) {
+        HomeAction(stringResource(R.string.history),
+            stringResource(R.string.view_your_saved_receipts), Icons.Outlined.History) {
             onOpenHistory()
         }
     )
@@ -91,7 +107,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("Smart Receipt Scanner") }
+                title = { Text(stringResource(R.string.app_name)) }
             )
         },
         bottomBar = {
@@ -125,7 +141,7 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        "Scan a new receipt or import from your gallery or files. On-device OCR keeps your data private.",
+                        stringResource(R.string.scan_a_new_receipt),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

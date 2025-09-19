@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Поиск продавца или текста…</string>
+    <string name="no_receipts_yet">Пока нет чеков. Отсканируйте или импортируйте, чтобы увидеть их здесь.</string>
+    <string name="capturing">Идёт съёмка...</string>
+    <string name="capture">Снять</string>
+    <string name="camera">Камера</string>
+    <string name="gallery">Галерея</string>
+    <string name="pdf">PDF</string>
+    <string name="history">История</string>
+    <string name="capture_a_new_receipt">Снять новый чек</string>
+    <string name="import_a_photo_of_a_receipt">Импортировать фото чека</string>
+    <string name="import_a_pdf_of_a_receipt">Импортировать чек в PDF</string>
+    <string name="view_your_saved_receipts">Просмотреть сохранённые чеки</string>
+    <string name="scan_a_new_receipt">Сканируйте новый чек или импортируйте из галереи/файлов. Локальная OCR сохраняет ваши данные в безопасности.</string>
+    <string name="details">Сведения</string>
+    <string name="merchant">Продавец</string>
+    <string name="currency">Валюта</string>
+    <string name="total">Итого</string>
+    <string name="no_text_detected">(Текст не обнаружен)</string>
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+</resources>

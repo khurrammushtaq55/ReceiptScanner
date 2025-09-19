@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">搜索商家或文本…</string>
+    <string name="no_receipts_yet">还没有收据。扫描或导入后会显示在这里。</string>
+    <string name="capturing">正在拍摄...</string>
+    <string name="capture">拍摄</string>
+    <string name="camera">相机</string>
+    <string name="gallery">图库</string>
+    <string name="pdf">PDF</string>
+    <string name="history">历史记录</string>
+    <string name="capture_a_new_receipt">拍摄新的收据</string>
+    <string name="import_a_photo_of_a_receipt">导入收据照片</string>
+    <string name="import_a_pdf_of_a_receipt">导入收据 PDF</string>
+    <string name="view_your_saved_receipts">查看已保存的收据</string>
+    <string name="scan_a_new_receipt">扫描新的收据，或从图库/文件导入。设备端 OCR 保护你的隐私。</string>
+    <string name="details">详情</string>
+    <string name="merchant">商家</string>
+    <string name="currency">货币</string>
+    <string name="total">总计</string>
+    <string name="no_text_detected">（未检测到文本）</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+</resources>

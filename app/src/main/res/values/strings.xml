@@ -1,16 +1,39 @@
 <resources>
-    <string name="app_name">Smart Receipt Scanner</string>
+    <string name="app_name">AI Receipt Box</string>
 
     <!-- TODO: replace these with your real AdMob IDs in release -->
-    <string name="admob_app_id">ca-app-pub-5966317256433132~5431696514</string>
-    <string name="admob_banner_id">ca-app-pub-5966317256433132/7566905263</string>
-    <string name="admob_interstitial_id">ca-app-pub-5966317256433132/5949768937</string>
+    <string name="admob_app_id">ca-app-pub-5966317256433132~3923640311</string>
+    <string name="admob_banner_id">ca-app-pub-5966317256433132/7550790480</string>
+    <string name="admob_interstitial_id">ca-app-pub-5966317256433132/3691721937</string>
     <string name="admob_rewarded_id">ca-app-pub-xxxxxxxxxxxxxxxx/cccccccccc</string>
 
     <!-- Google test unit IDs (safe to commit; use only in debug/dev) -->
     <string name="admob_test_banner">ca-app-pub-3940256099942544/6300978111</string>
     <string name="admob_test_interstitial">ca-app-pub-3940256099942544/1033173712</string>
     <string name="admob_test_rewarded">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="back">Back</string>
+
+
+    <string name="search" translatable="false">Search merchant or text…</string>
+    <string name="no_receipts_yet" translatable="false">No receipts yet. Scan or import to see them here.</string>
+    <string name="capturing" translatable="false">Capturing...</string>
+    <string name="capture" translatable="false">Capture</string>
+    <string name="camera" translatable="false">Camera</string>
+    <string name="gallery" translatable="false">Gallery</string>
+    <string name="pdf" translatable="false">PDF</string>
+    <string name="history" translatable="false">History</string>
+    <string name="capture_a_new_receipt" translatable="false">Capture a new receipt</string>
+    <string name="import_a_photo_of_a_receipt" translatable="false">Import a photo of a receipt</string>
+    <string name="import_a_pdf_of_a_receipt" translatable="false">Import a PDF of a receipt</string>
+    <string name="view_your_saved_receipts" translatable="false">View your saved receipts</string>
+    <string name="scan_a_new_receipt" translatable="false">Scan a new receipt or import from your gallery or files. On-device OCR keeps your data private.</string>
+    <string name="details" translatable="false">Details</string>
+    <string name="merchant" translatable="false">Merchant</string>
+    <string name="currency" translatable="false">Currency</string>
+    <string name="total" translatable="false">Total</string>
+    <string name="no_text_detected" translatable="false">(No text detected)</string>
+    <string name="cancel" translatable="false">Cancel</string>
+    <string name="save" translatable="false">Save</string>
 
 
 </resources>

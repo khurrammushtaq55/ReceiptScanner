@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Rechercher un commerçant ou un texte…</string>
+    <string name="no_receipts_yet">Aucun reçu pour le moment. Scannez ou importez pour les voir ici.</string>
+    <string name="capturing">Capture en cours...</string>
+    <string name="capture">Capturer</string>
+    <string name="camera">Appareil photo</string>
+    <string name="gallery">Galerie</string>
+    <string name="pdf">PDF</string>
+    <string name="history">Historique</string>
+    <string name="capture_a_new_receipt">Capturer un nouveau reçu</string>
+    <string name="import_a_photo_of_a_receipt">Importer une photo de reçu</string>
+    <string name="import_a_pdf_of_a_receipt">Importer un reçu au format PDF</string>
+    <string name="view_your_saved_receipts">Voir vos reçus enregistrés</string>
+    <string name="scan_a_new_receipt">Scannez un nouveau reçu ou importez-le depuis la galerie ou les fichiers. L’OCR sur l’appareil protège vos données.</string>
+    <string name="details">Détails</string>
+    <string name="merchant">Commerçant</string>
+    <string name="currency">Devise</string>
+    <string name="total">Total</string>
+    <string name="no_text_detected">(Aucun texte détecté)</string>
+    <string name="cancel">Annuler</string>
+    <string name="save">Enregistrer</string>
+</resources>

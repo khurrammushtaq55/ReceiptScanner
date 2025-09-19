@@ -1,16 +1,35 @@
 package com.mmushtaq.smartreceiptscanner.screens.history
 
-import android.os.Build
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,12 +37,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 import com.mmushtaq.smartreceiptscanner.core.data.db.ReceiptEntity
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,23 +64,26 @@ fun HistoryScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
             )
-        }, bottomBar = {
+        },
+        bottomBar = {
             BannerAd(
             )
         },
     ) { pad ->
-        Column(Modifier
-            .padding(pad)
-            .fillMaxSize()) {
+        Column(
+            Modifier
+                .padding(pad)
+                .fillMaxSize()
+        ) {
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it; vm.setQuery(it) },
-                label = { Text("Search merchant or text…") },
+                label = { Text(stringResource(R.string.search)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
@@ -68,7 +92,7 @@ fun HistoryScreen(
 
             if (items.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No receipts yet. Scan or import to see them here.")
+                    Text(stringResource(R.string.no_receipts_yet))
                 }
             } else {
                 val receipts by vm.ui.collectAsState()
@@ -88,9 +112,11 @@ fun HistoryScreen(
 @Composable
 private fun ReceiptRow(r: ReceiptEntity, onClick: () -> Unit) {
     ElevatedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier
-            .height(IntrinsicSize.Min)
-            .padding(12.dp)) {
+        Row(
+            Modifier
+                .height(IntrinsicSize.Min)
+                .padding(12.dp)
+        ) {
             Image(
                 painter = rememberAsyncImagePainter(r.imageUri),
                 contentDescription = null,
@@ -126,7 +152,6 @@ private fun summaryLine(r: ReceiptEntity): String {
     val total = r.totalMinor?.formatMinor(r.currency)
     return total ?: (r.rawText.take(60).replace("\n", " ") + if (r.rawText.length > 60) "…" else "")
 }
-
 
 
 fun Long.formatDate(

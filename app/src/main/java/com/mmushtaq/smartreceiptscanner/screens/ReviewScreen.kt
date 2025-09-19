@@ -18,10 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.scale
+import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import com.mmushtaq.smartreceiptscanner.core.util.parseAmountInputToMinor
 import com.mmushtaq.smartreceiptscanner.scan.OcrViewModel
@@ -100,12 +102,12 @@ fun ReviewScreen(
                 var saveEnabled by remember { mutableStateOf(true) }
 
                 // fields
-                Text("Details", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.details), fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = merchant,
                     onValueChange = { merchant = it },
-                    label = { Text("Merchant") },
+                    label = { Text(stringResource(R.string.merchant)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -122,7 +124,7 @@ fun ReviewScreen(
                     OutlinedTextField(
                         value = currency,
                         onValueChange = { currency = it.uppercase(Locale.ROOT).take(3) },
-                        label = { Text("Currency") },
+                        label = { Text(stringResource(R.string.currency)) },
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
@@ -130,7 +132,7 @@ fun ReviewScreen(
                     OutlinedTextField(
                         value = totalText,
                         onValueChange = { totalText = it },
-                        label = { Text("Total") },
+                        label = { Text(stringResource(R.string.total)) },
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
@@ -139,16 +141,18 @@ fun ReviewScreen(
                 Spacer(Modifier.height(12.dp))
                 Text("Raw OCR Text", fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
-                Box(Modifier.fillMaxWidth().weight(1f)) {
+                Box(Modifier
+                    .fillMaxWidth()
+                    .weight(1f)) {
                     Text(
-                        s.rawText.ifBlank { "(No text detected)" },
+                        s.rawText.ifBlank { stringResource(R.string.no_text_detected) },
                         modifier = Modifier.verticalScroll(rememberScrollState())
                     )
                 }
 
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDone) { Text("Cancel") }
+                    TextButton(onClick = onDone) { Text(stringResource(R.string.cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         // push edits into VM
@@ -171,7 +175,7 @@ fun ReviewScreen(
                             )
                         }
                         vm.save(imageUri)
-                    }, enabled = saveEnabled) { Text("Save") }
+                    }, enabled = saveEnabled) { Text(stringResource(R.string.save)) }
                 }
             }
 
