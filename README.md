@@ -29,7 +29,7 @@ On-device receipt scanning and organization. Capture with camera, import from ga
 - **PdfRenderer** (PDF → bitmap)
 - **Coil** (thumbnails)
 - **AndroidX SplashScreen** (splash)
-- **Min SDK 26**, **Target SDK 35**
+- **Min SDK 26**, **Target SDK 36**
 
 ---
 

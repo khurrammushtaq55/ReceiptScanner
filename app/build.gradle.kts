@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.mmushtaq.smartreceiptscanner"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 2
         versionName = "0.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
