@@ -10,6 +10,7 @@ import com.mmushtaq.smartreceiptscanner.core.parser.MerchantPatternStore
 import com.mmushtaq.smartreceiptscanner.scan.OcrViewModel
 import com.mmushtaq.smartreceiptscanner.screens.HomeViewModel
 import com.mmushtaq.smartreceiptscanner.screens.history.HistoryViewModel
+import com.mmushtaq.smartreceiptscanner.screens.settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -37,4 +38,5 @@ val appModule = module {
     viewModel { OcrViewModel(get(), get(), get()) }  // ocr, repo, merchant pattern store
     viewModel { HistoryViewModel(get()) }
     viewModel { HomeViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get()) }
 }

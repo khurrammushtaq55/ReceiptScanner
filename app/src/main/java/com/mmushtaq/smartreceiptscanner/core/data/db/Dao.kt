@@ -15,8 +15,14 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipts ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<ReceiptEntity>>
 
+    @Query("SELECT * FROM receipts ORDER BY createdAt DESC")
+    suspend fun getAllOnce(): List<ReceiptEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ReceiptEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entities: List<ReceiptEntity>)
 
     @Query("SELECT * FROM receipts WHERE id = :id")
     suspend fun get(id: String): ReceiptEntity?

@@ -10,8 +10,12 @@ import org.junit.Test
 private class FakeMerchantPatternDao : MerchantPatternDao {
     val table = mutableMapOf<String, MerchantPatternEntity>()
     override suspend fun get(merchantKey: String): MerchantPatternEntity? = table[merchantKey]
+    override suspend fun getAllOnce(): List<MerchantPatternEntity> = table.values.toList()
     override suspend fun upsert(entity: MerchantPatternEntity) {
         table[entity.merchantKey] = entity
+    }
+    override suspend fun insertAll(entities: List<MerchantPatternEntity>) {
+        entities.forEach { table[it.merchantKey] = it }
     }
 }
 

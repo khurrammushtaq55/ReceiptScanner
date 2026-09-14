@@ -27,6 +27,7 @@ import com.mmushtaq.smartreceiptscanner.screens.CaptureScreen
 import com.mmushtaq.smartreceiptscanner.screens.HomeScreen
 import com.mmushtaq.smartreceiptscanner.screens.ReviewScreen
 import com.mmushtaq.smartreceiptscanner.screens.history.HistoryScreen
+import com.mmushtaq.smartreceiptscanner.screens.settings.SettingsScreen
 import com.mmushtaq.smartreceiptscanner.screens.utils.LoadingOverlay
 import com.mmushtaq.smartreceiptscanner.screens.utils.rememberMainAppState
 import com.mmushtaq.smartreceiptscanner.ui.theme.AppTheme
@@ -64,6 +65,9 @@ class MainActivity : ComponentActivity() {
                                 onPdfPicked = app::onPdfPicked,
                                 onOpenHistory = {
                                     app.navigate(Screen.History)
+                                },
+                                onOpenSettings = {
+                                    app.navigate(Screen.Settings)
                                 }
                             )
 
@@ -87,6 +91,10 @@ class MainActivity : ComponentActivity() {
 
                             Screen.History -> {
                                 HistoryScreenWithAdOnBack(onBack = { app.onBack() })
+                            }
+
+                            Screen.Settings -> {
+                                SettingsScreen(onBack = { app.onBack() })
                             }
                         }
 
@@ -125,5 +133,6 @@ sealed class Screen {
     data object Camera : Screen()
     data object Review : Screen()
     data object History : Screen()
+    data object Settings : Screen()
 
 }

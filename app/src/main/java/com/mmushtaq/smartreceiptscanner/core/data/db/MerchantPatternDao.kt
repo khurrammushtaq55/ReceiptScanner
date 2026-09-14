@@ -24,6 +24,12 @@ interface MerchantPatternDao {
     @Query("SELECT * FROM merchant_patterns WHERE merchantKey = :merchantKey")
     suspend fun get(merchantKey: String): MerchantPatternEntity?
 
+    @Query("SELECT * FROM merchant_patterns")
+    suspend fun getAllOnce(): List<MerchantPatternEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: MerchantPatternEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entities: List<MerchantPatternEntity>)
 }

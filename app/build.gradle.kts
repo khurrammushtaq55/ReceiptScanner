@@ -85,6 +85,10 @@ dependencies {
     // Thumbnails
     implementation(libs.coil.compose)
     testImplementation(libs.junit)
+    // Real org.json implementation for plain JUnit tests — Android's bundled org.json in
+    // android.jar is a stub that throws at runtime outside instrumentation tests.
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
