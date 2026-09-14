@@ -1,5 +1,6 @@
 package com.mmushtaq.smartreceiptscanner.core.parser
 
+import com.mmushtaq.smartreceiptscanner.core.data.Categories
 import java.time.*
 import java.util.Locale
 import kotlin.math.pow
@@ -9,10 +10,25 @@ data class ParsedReceipt(
     val dateEpochMs: Long? = null,
     val currency: String? = null,
     val totalMinor: Long? = null,
-    val taxMinor: Long? = null
+    val taxMinor: Long? = null,
+    val suggestedCategory: String? = null,
+    /** Per-field confidence in [0f, 1f], keyed by [ReceiptParser.Field]. Missing key = not attempted. */
+    val confidence: Map<String, Float> = emptyMap()
 )
 
 object ReceiptParser {
+
+    /** Keys used in [ParsedReceipt.confidence]. */
+    object Field {
+        const val MERCHANT = "merchant"
+        const val DATE = "date"
+        const val CURRENCY = "currency"
+        const val TOTAL = "total"
+        const val TAX = "tax"
+    }
+
+    /** Fields scoring below this in Review should be visually flagged for the user to double-check. */
+    const val LOW_CONFIDENCE_THRESHOLD = 0.5f
 
     private val monthMap = mapOf(
         "JAN" to 1, "FEB" to 2, "MAR" to 3, "APR" to 4, "MAY" to 5, "JUN" to 6,
@@ -28,31 +44,58 @@ object ReceiptParser {
     private val likelyTotalHints = listOf("grand total", "total", "amount due", "balance due", "net total")
     private val taxHints = listOf("tax", "gst", "vat", "sales tax")
 
-    private val merchantNoise = listOf("invoice", "receipt", "bill", "tax", "store", "supermarket", "mart", "restaurant", "pharmacy")
+    // Generic receipt/label words only — NOT business-type words like "mart", "store",
+    // "restaurant", "pharmacy", since those very commonly appear *inside* real merchant
+    // names (e.g. "AL-FAISAL MART", "City Pharmacy") and would wrongly reject them.
+    private val merchantNoise = listOf("invoice", "receipt", "bill")
 
     fun parse(raw: String, defaultCurrency: String = "PKR", tz: ZoneId = ZoneId.systemDefault()): ParsedReceipt {
         val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }
 
-        val currency = detectCurrency(raw) ?: defaultCurrency
-        val totals = candidateTotals(lines, currency)
-        val totalMinor = totals.maxByOrNull { it.second }?.second ?: // prioritized hint lines
-        lastBlockMax(lines, currency) // fallback: max of last lines
+        val detectedCurrency = detectCurrency(raw)
+        val currency = detectedCurrency ?: defaultCurrency
+        // Explicit symbol/code found in the text vs. silently falling back to the app default.
+        val currencyConfidence = if (detectedCurrency != null) 0.9f else 0.3f
+
+        val hintedTotal = candidateTotals(lines, currency).maxByOrNull { it.second }?.second
+        val totalMinor = hintedTotal ?: lastBlockMax(lines, currency) // fallback: max of last lines
+        val totalConfidence = when {
+            hintedTotal != null -> 0.9f      // matched a "total"/"grand total"/etc. hint line
+            totalMinor != null -> 0.4f       // guessed from the largest amount near the bottom
+            else -> 0f
+        }
 
         val taxMinor = lines.firstNotNullOfOrNull { line ->
             if (taxHints.any { line.contains(it, ignoreCase = true) }) {
                 extractMinor(line, currency)
             } else null
         }
+        val taxConfidence = if (taxMinor != null) 0.85f else 0f
 
         val dateMs = parseAnyDate(lines, tz)
+        val dateConfidence = if (dateMs != null) 0.8f else 0f
+
         val merchant = guessMerchant(lines)
+        val merchantConfidence = if (merchant != null) 0.7f else 0f
+
+        val suggestedCategory = Categories.guessFromMerchant(merchant)?.id
+
+        val confidence = mapOf(
+            Field.MERCHANT to merchantConfidence,
+            Field.DATE to dateConfidence,
+            Field.CURRENCY to currencyConfidence,
+            Field.TOTAL to totalConfidence,
+            Field.TAX to taxConfidence
+        )
 
         return ParsedReceipt(
             merchant = merchant,
             dateEpochMs = dateMs,
             currency = currency,
             totalMinor = totalMinor,
-            taxMinor = taxMinor
+            taxMinor = taxMinor,
+            suggestedCategory = suggestedCategory,
+            confidence = confidence
         )
     }
 

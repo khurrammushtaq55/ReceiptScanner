@@ -6,10 +6,13 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -24,12 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.scale
 import com.mmushtaq.smartreceiptscanner.R
+import com.mmushtaq.smartreceiptscanner.core.data.Categories
+import com.mmushtaq.smartreceiptscanner.core.parser.ReceiptParser
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import com.mmushtaq.smartreceiptscanner.core.util.parseAmountInputToMinor
 import com.mmushtaq.smartreceiptscanner.scan.OcrViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+import androidx.compose.material3.MaterialTheme
 import org.koin.androidx.compose.koinViewModel
 import java.util.Date
 
@@ -100,6 +106,11 @@ fun ReviewScreen(
                         ?.substringBeforeLast(' ') ?: "")
                 }
                 var saveEnabled by remember { mutableStateOf(true) }
+                var category by remember { mutableStateOf(edit.category ?: Categories.Other.id) }
+
+                val confidence = s.confidence
+                fun isLow(field: String) =
+                    (confidence[field] ?: 1f) < ReceiptParser.LOW_CONFIDENCE_THRESHOLD
 
                 // fields
                 Text(stringResource(R.string.details), fontWeight = FontWeight.SemiBold)
@@ -111,6 +122,7 @@ fun ReviewScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                VerifyHint(isLow(ReceiptParser.Field.MERCHANT))
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = dateText,
@@ -119,23 +131,43 @@ fun ReviewScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                VerifyHint(isLow(ReceiptParser.Field.DATE))
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = currency,
-                        onValueChange = { currency = it.uppercase(Locale.ROOT).take(3) },
-                        label = { Text(stringResource(R.string.currency)) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(Modifier.weight(1f)) {
+                        OutlinedTextField(
+                            value = currency,
+                            onValueChange = { currency = it.uppercase(Locale.ROOT).take(3) },
+                            label = { Text(stringResource(R.string.currency)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        VerifyHint(isLow(ReceiptParser.Field.CURRENCY))
+                    }
                     Spacer(Modifier.width(12.dp))
-                    OutlinedTextField(
-                        value = totalText,
-                        onValueChange = { totalText = it },
-                        label = { Text(stringResource(R.string.total)) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(Modifier.weight(1f)) {
+                        OutlinedTextField(
+                            value = totalText,
+                            onValueChange = { totalText = it },
+                            label = { Text(stringResource(R.string.total)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        VerifyHint(isLow(ReceiptParser.Field.TOTAL))
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+                Text("Category", fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(Categories.all) { cat ->
+                        FilterChip(
+                            selected = category == cat.id,
+                            onClick = { category = cat.id },
+                            label = { Text(cat.label) }
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -171,7 +203,8 @@ fun ReviewScreen(
                                 merchant = merchant,
                                 dateEpochMs = parsedDate,
                                 currency = currency.ifBlank { "PKR" },
-                                totalMinor = totalMinor
+                                totalMinor = totalMinor,
+                                category = category
                             )
                         }
                         vm.save(imageUri)
@@ -183,6 +216,18 @@ fun ReviewScreen(
         }
     }
 }
+@Composable
+private fun VerifyHint(show: Boolean) {
+    if (show) {
+        Spacer(Modifier.height(2.dp))
+        Text(
+            "Please verify — low-confidence guess",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color(0xFFB26A00) // amber, distinct from the theme's error color
+        )
+    }
+}
+
 fun loadPreviewBitmap(resolver: ContentResolver, uri: Uri): Bitmap? {
     return try {
         resolver.openInputStream(uri)?.use { input ->

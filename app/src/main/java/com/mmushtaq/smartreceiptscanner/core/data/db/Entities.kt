@@ -12,5 +12,6 @@ data class ReceiptEntity(
     val dateEpochMs: Long?,       // parsed later (for now null)
     val merchant: String?,        // parsed later
     val totalMinor: Long?,        // parsed later
-    val currency: String?         // parsed later
+    val currency: String?,        // parsed later
+    val category: String? = null  // one of Categories.all ids; null = uncategorized
 )

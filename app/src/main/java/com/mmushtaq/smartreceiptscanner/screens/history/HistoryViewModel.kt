@@ -8,18 +8,20 @@ import kotlinx.coroutines.flow.*
 
 class HistoryViewModel(private val repo: ReceiptRepository) : ViewModel() {
     private val query = MutableStateFlow("")
+    private val categoryFilter = MutableStateFlow<String?>(null)
     private val source = repo.observeReceipts()
 
-    val ui: StateFlow<List<ReceiptEntity>> = combine(source, query) { list, q ->
-        if (q.isBlank()) list
-        else {
-            val needle = q.trim().lowercase()
-            list.filter { e ->
-                (e.merchant?.lowercase()?.contains(needle) == true) ||
-                        e.rawText.lowercase().contains(needle)
-            }
+    val ui: StateFlow<List<ReceiptEntity>> = combine(source, query, categoryFilter) { list, q, cat ->
+        val needle = q.trim().lowercase()
+        list.filter { e ->
+            val matchesQuery = needle.isBlank() ||
+                    (e.merchant?.lowercase()?.contains(needle) == true) ||
+                    e.rawText.lowercase().contains(needle)
+            val matchesCategory = cat == null || e.category == cat
+            matchesQuery && matchesCategory
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun setQuery(text: String) { query.value = text }
+    fun setCategoryFilter(categoryId: String?) { categoryFilter.value = categoryId }
 }

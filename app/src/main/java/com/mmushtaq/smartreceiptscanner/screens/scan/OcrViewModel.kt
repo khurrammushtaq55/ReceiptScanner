@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mmushtaq.smartreceiptscanner.core.data.ReceiptRepository
 import com.mmushtaq.smartreceiptscanner.core.ocr.OcrClient
+import com.mmushtaq.smartreceiptscanner.core.parser.MerchantPatternStore
 import com.mmushtaq.smartreceiptscanner.core.parser.ReceiptParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class OcrViewModel(
     private val ocr: OcrClient,
-    private val repo: ReceiptRepository
+    private val repo: ReceiptRepository,
+    private val patternStore: MerchantPatternStore
 ) : ViewModel() {
 
     data class EditModel(
@@ -20,13 +22,19 @@ class OcrViewModel(
         val dateEpochMs: Long?,
         val currency: String,
         val totalMinor: Long?,
-        val taxMinor: Long?
+        val taxMinor: Long?,
+        val category: String? = null
     )
 
     sealed interface UiState {
         data object Idle : UiState
         data object Loading : UiState
-        data class Success(val rawText: String, val edit: EditModel) : UiState
+        data class Success(
+            val rawText: String,
+            val edit: EditModel,
+            /** Per-field confidence from [ReceiptParser.Field] — drives "please verify" hints in Review. */
+            val confidence: Map<String, Float> = emptyMap()
+        ) : UiState
         data class Error(val message: String) : UiState
         data class Saved(val id: String) : UiState
     }
@@ -40,14 +48,18 @@ class OcrViewModel(
             runCatching { ocr.recognize(uri).text }
                 .onSuccess { text ->
                     val p = ReceiptParser.parse(text, defaultCurrency)
+                    // A remembered correction for this merchant (if any) takes priority over the
+                    // one-shot heuristic guess, but the user can always override it in Review.
+                    val remembered = patternStore.lookup(p.merchant)
                     val edit = EditModel(
                         merchant = p.merchant.orEmpty(),
                         dateEpochMs = p.dateEpochMs,
-                        currency = p.currency ?: defaultCurrency,
+                        currency = remembered?.currency ?: p.currency ?: defaultCurrency,
                         totalMinor = p.totalMinor,
-                        taxMinor = p.taxMinor
+                        taxMinor = p.taxMinor,
+                        category = remembered?.category ?: p.suggestedCategory
                     )
-                    _state.value = UiState.Success(text, edit)
+                    _state.value = UiState.Success(text, edit, p.confidence)
                 }
                 .onFailure { _state.value = UiState.Error(it.message ?: "OCR failed") }
         }
@@ -67,7 +79,8 @@ class OcrViewModel(
                 repo.saveBasic(
                     imageUri = uri.toString(),
                     rawText = cur.rawText,
-                    merchant = cur.edit.merchant
+                    merchant = cur.edit.merchant,
+                    category = cur.edit.category
                 ).also { id ->
                     // Immediately patch parsed fields
                     repo.updateParsed(
@@ -76,7 +89,14 @@ class OcrViewModel(
                         dateEpochMs = cur.edit.dateEpochMs,
                         currency = cur.edit.currency,
                         totalMinor = cur.edit.totalMinor,
-                        taxMinor = cur.edit.taxMinor
+                        taxMinor = cur.edit.taxMinor,
+                        category = cur.edit.category
+                    )
+                    // Learn from whatever the user ended up saving, for next time this merchant appears.
+                    patternStore.recordCorrection(
+                        merchant = cur.edit.merchant,
+                        category = cur.edit.category,
+                        currency = cur.edit.currency
                     )
                     id
                 }

@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.room.Room
 import com.mmushtaq.smartreceiptscanner.core.data.ReceiptRepository
 import com.mmushtaq.smartreceiptscanner.core.data.db.AppDb
+import com.mmushtaq.smartreceiptscanner.core.data.db.ALL_MIGRATIONS
 import com.mmushtaq.smartreceiptscanner.core.ocr.OcrClient
+import com.mmushtaq.smartreceiptscanner.core.parser.MerchantPatternStore
 import com.mmushtaq.smartreceiptscanner.scan.OcrViewModel
+import com.mmushtaq.smartreceiptscanner.screens.HomeViewModel
 import com.mmushtaq.smartreceiptscanner.screens.history.HistoryViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -18,15 +21,20 @@ val appModule = module {
             androidContext() as Application,
             AppDb::class.java,
             "receipts.db"
-        ).fallbackToDestructiveMigration().build()
+        ).addMigrations(*ALL_MIGRATIONS)
+            .fallbackToDestructiveMigration()
+            .build()
     }
     single { get<AppDb>().receiptDao() }
+    single { get<AppDb>().merchantPatternDao() }
     single { ReceiptRepository(get()) }
+    single { MerchantPatternStore(get()) }
 
     // OCR
     single { OcrClient(androidContext()) }
 
     // ViewModels
-    viewModel { OcrViewModel(get(), get()) }        // now also takes repo
+    viewModel { OcrViewModel(get(), get(), get()) }  // ocr, repo, merchant pattern store
     viewModel { HistoryViewModel(get()) }
+    viewModel { HomeViewModel(get()) }
 }
