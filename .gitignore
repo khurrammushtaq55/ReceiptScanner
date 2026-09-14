@@ -32,3 +32,8 @@ google-services.json
 
 # Android Profiling
 *.hprof
+keystore/Untitled
+screenshots/Screenshot_20250831_003034.png
+app/src/main/res/.DS_Store
+app/.DS_Store
+.DS_Store
