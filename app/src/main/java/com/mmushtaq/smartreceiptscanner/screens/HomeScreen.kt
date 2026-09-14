@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Collections
@@ -34,9 +36,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -45,6 +50,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
+import com.mmushtaq.smartreceiptscanner.core.data.Categories
+import com.mmushtaq.smartreceiptscanner.core.data.db.CategoryTotal
+import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,9 +62,11 @@ fun HomeScreen(
     onImagePicked: (Uri) -> Unit,
     onPdfPicked: (Uri) -> Unit,
     onOpenHistory: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    vm: HomeViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val monthlyTotals by vm.monthlyCategoryTotals.collectAsState()
 
     // --- Launchers ---
     val pickPhoto = rememberLauncherForActivityResult(
@@ -149,6 +160,10 @@ fun HomeScreen(
 
             Spacer(Modifier.height(12.dp))
 
+            MonthlySummaryCard(monthlyTotals)
+
+            Spacer(Modifier.height(12.dp))
+
             // Grid of actions
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 170.dp),
@@ -201,6 +216,68 @@ private fun FeatureCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun MonthlySummaryCard(totals: List<CategoryTotal>) {
+    val spent = totals.filter { it.totalMinor > 0 }
+    if (spent.isEmpty()) return
+
+    // NOTE: assumes a single currency for now — Phase 4 (multi-currency) revisits this.
+    val currency = "PKR"
+    val grandTotal = spent.sumOf { it.totalMinor }
+
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                "This month",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(grandTotal.formatMinor(currency), style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(14.dp))
+
+            spent.sortedByDescending { it.totalMinor }.forEach { t ->
+                val cat = Categories.byId(t.category)
+                CategoryBar(
+                    label = cat.label,
+                    color = cat.color,
+                    amountText = t.totalMinor.formatMinor(currency),
+                    fraction = if (grandTotal > 0) t.totalMinor / grandTotal.toFloat() else 0f
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategoryBar(label: String, color: Color, amountText: String, fraction: Float) {
+    Column {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(label, style = MaterialTheme.typography.bodyMedium)
+            Text(amountText, style = MaterialTheme.typography.bodyMedium)
+        }
+        Spacer(Modifier.height(4.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(3.dp))
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
+                    .fillMaxHeight()
+                    .background(color, RoundedCornerShape(3.dp))
+            )
         }
     }
 }

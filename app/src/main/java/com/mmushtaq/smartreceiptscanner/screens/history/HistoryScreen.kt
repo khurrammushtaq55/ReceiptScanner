@@ -1,6 +1,7 @@
 package com.mmushtaq.smartreceiptscanner.screens.history
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,10 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
+import com.mmushtaq.smartreceiptscanner.core.data.Categories
 import com.mmushtaq.smartreceiptscanner.core.data.db.ReceiptEntity
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import org.koin.androidx.compose.koinViewModel
@@ -55,6 +60,7 @@ fun HistoryScreen(
 ) {
     val items by vm.ui.collectAsState()
     var search by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -89,6 +95,30 @@ fun HistoryScreen(
                     .padding(12.dp),
                 singleLine = true
             )
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    FilterChip(
+                        selected = selectedCategory == null,
+                        onClick = { selectedCategory = null; vm.setCategoryFilter(null) },
+                        label = { Text("All") }
+                    )
+                }
+                items(Categories.all) { cat ->
+                    FilterChip(
+                        selected = selectedCategory == cat.id,
+                        onClick = { selectedCategory = cat.id; vm.setCategoryFilter(cat.id) },
+                        label = { Text(cat.label) }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(4.dp))
 
             if (items.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -150,7 +180,9 @@ private fun ReceiptRow(r: ReceiptEntity, onClick: () -> Unit) {
 
 private fun summaryLine(r: ReceiptEntity): String {
     val total = r.totalMinor?.formatMinor(r.currency)
-    return total ?: (r.rawText.take(60).replace("\n", " ") + if (r.rawText.length > 60) "…" else "")
+    val catLabel = r.category?.let { Categories.byId(it).label }
+    val base = total ?: (r.rawText.take(60).replace("\n", " ") + if (r.rawText.length > 60) "…" else "")
+    return if (catLabel != null) "$catLabel • $base" else base
 }
 
 
