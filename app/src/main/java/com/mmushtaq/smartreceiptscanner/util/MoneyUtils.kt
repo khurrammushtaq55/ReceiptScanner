@@ -9,6 +9,15 @@ fun Long.formatMinor(currency: String?): String {
     else String.format(Locale.getDefault(), "%,.2f %s", this / 100.0, code)
 }
 
+/** Same as [formatMinor] but without the currency code suffix — for tabular exports (CSV/PDF)
+ * where currency is already shown in its own column. */
+fun Long.formatMinorPlain(currency: String?): String {
+    val code = currency?.uppercase(Locale.ROOT) ?: "PKR"
+    val scale = when (code) { "JPY" -> 0; else -> 2 }
+    return if (scale == 0) this.toString()
+    else String.format(Locale.US, "%.2f", this / 100.0)
+}
+
 fun parseAmountInputToMinor(text: String, currency: String?): Long? {
     val code = currency?.uppercase(Locale.ROOT) ?: "PKR"
     val scale = when (code) { "JPY" -> 0; else -> 2 }

@@ -28,9 +28,11 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Collections
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,6 +64,7 @@ fun HomeScreen(
     onImagePicked: (Uri) -> Unit,
     onPdfPicked: (Uri) -> Unit,
     onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel()
 ) {
@@ -118,7 +121,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(R.string.app_name)) }
+                title = { Text(stringResource(R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(Icons.Outlined.Settings, contentDescription = "Settings")
+                    }
+                }
             )
         },
         bottomBar = {
@@ -310,6 +318,7 @@ fun FeatureCardPreview() {
         onOpenCamera = { /*TODO*/ },
         onImagePicked = { /*TODO*/ },
         onPdfPicked = { /*TODO*/ },
-        onOpenHistory = { /*TODO*/ }
+        onOpenHistory = { /*TODO*/ },
+        onOpenSettings = { /*TODO*/ }
     )
 }

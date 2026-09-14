@@ -55,6 +55,12 @@ class ReceiptRepository(private val dao: ReceiptDao) {
     suspend fun get(id: String) = dao.get(id)
     suspend fun delete(entity: ReceiptEntity) = dao.delete(entity)
 
+    /** One-shot read of everything currently stored — for backup export. */
+    suspend fun getAllOnce(): List<ReceiptEntity> = dao.getAllOnce()
+
+    /** Bulk restore from a JSON backup. Existing rows with matching ids are replaced. */
+    suspend fun importAll(entities: List<ReceiptEntity>) = dao.insertAll(entities)
+
     /** Spend-by-category for the current calendar month, keyed by createdAt (when the receipt was saved). */
     fun observeMonthlyCategoryTotals(): Flow<List<CategoryTotal>> {
         val (start, end) = currentMonthRange()

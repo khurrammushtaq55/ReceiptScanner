@@ -18,6 +18,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -33,10 +36,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,7 +50,13 @@ import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 import com.mmushtaq.smartreceiptscanner.core.data.Categories
 import com.mmushtaq.smartreceiptscanner.core.data.db.ReceiptEntity
+import com.mmushtaq.smartreceiptscanner.core.export.CsvExporter
+import com.mmushtaq.smartreceiptscanner.core.export.PdfReportExporter
+import com.mmushtaq.smartreceiptscanner.core.export.ShareUtil
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,6 +72,9 @@ fun HistoryScreen(
     val items by vm.ui.collectAsState()
     var search by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var exportMenuExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -71,6 +85,44 @@ fun HistoryScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { exportMenuExpanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Export")
+                    }
+                    DropdownMenu(
+                        expanded = exportMenuExpanded,
+                        onDismissRequest = { exportMenuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Export CSV") },
+                            enabled = items.isNotEmpty(),
+                            onClick = {
+                                exportMenuExpanded = false
+                                val toExport = items
+                                scope.launch(Dispatchers.IO) {
+                                    val uri = CsvExporter.export(context, toExport)
+                                    withContext(Dispatchers.Main) {
+                                        ShareUtil.shareFile(context, uri, "text/csv", "Export receipts (CSV)")
+                                    }
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Export PDF report") },
+                            enabled = items.isNotEmpty(),
+                            onClick = {
+                                exportMenuExpanded = false
+                                val toExport = items
+                                scope.launch(Dispatchers.IO) {
+                                    val uri = PdfReportExporter.export(context, toExport)
+                                    withContext(Dispatchers.Main) {
+                                        ShareUtil.shareFile(context, uri, "application/pdf", "Export receipts (PDF)")
+                                    }
+                                }
+                            }
                         )
                     }
                 }

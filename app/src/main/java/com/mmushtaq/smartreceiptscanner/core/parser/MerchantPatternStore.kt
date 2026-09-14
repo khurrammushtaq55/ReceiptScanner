@@ -15,6 +15,12 @@ class MerchantPatternStore(private val dao: MerchantPatternDao) {
         return dao.get(key)
     }
 
+    /** One-shot read of all remembered corrections — for backup export. */
+    suspend fun getAllOnce(): List<MerchantPatternEntity> = dao.getAllOnce()
+
+    /** Bulk restore from a JSON backup. */
+    suspend fun importAll(entities: List<MerchantPatternEntity>) = dao.insertAll(entities)
+
     suspend fun recordCorrection(merchant: String?, category: String?, currency: String?) {
         val key = normalize(merchant) ?: return
         if (category == null && currency == null) return

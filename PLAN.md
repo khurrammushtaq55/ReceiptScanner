@@ -29,13 +29,13 @@ before reports since better parsed data makes reports more meaningful.
 ## Phase 2 — Export & Backup
 **Goal:** get data out for expense/tax reporting; local backup/restore.
 
-- [ ] New: `core/export/CsvExporter.kt` — writes filtered receipts (merchant, date, total, tax, currency, category) to CSV via `FileProvider`
-- [ ] New: `core/export/JsonBackup.kt` — full DB → JSON export/import (for local backup, not sync)
-- [ ] New: `core/export/PdfReportExporter.kt` — single receipt or date-range → simple PDF (use Android `PdfDocument`, no external lib)
-- [ ] `HistoryScreen.kt`: add overflow menu → "Export CSV" (respects active filters), "Export PDF report"
-- [ ] `HomeScreen.kt` or new `SettingsScreen.kt`: "Backup to JSON" / "Restore from JSON"
-- [ ] Add `FileProvider` entry to `AndroidManifest.xml` + `file_paths.xml` if not present, for sharing exported files
-- [ ] Tests: CSV row formatting, JSON round-trip (export then import produces identical entities)
+- [x] New: `core/export/CsvExporter.kt` — writes filtered receipts (merchant, date, total, tax, currency, category) to CSV via `FileProvider`
+- [x] New: `core/export/JsonBackup.kt` — full DB → JSON export/import (for local backup, not sync)
+- [x] New: `core/export/PdfReportExporter.kt` — single receipt or date-range → simple PDF (use Android `PdfDocument`, no external lib)
+- [x] `HistoryScreen.kt`: add overflow menu → "Export CSV" (respects active filters), "Export PDF report"
+- [x] `HomeScreen.kt` or new `SettingsScreen.kt`: "Backup to JSON" / "Restore from JSON"
+- [x] Add `FileProvider` entry to `AndroidManifest.xml` + `file_paths.xml` if not present, for sharing exported files
+- [x] Tests: CSV row formatting, JSON round-trip (export then import produces identical entities)
 
 ## Phase 3 — Parsing Accuracy Improvements
 **Goal:** make the heuristic parser self-aware and correctable.
