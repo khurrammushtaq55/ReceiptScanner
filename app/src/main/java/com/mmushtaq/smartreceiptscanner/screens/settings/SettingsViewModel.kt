@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mmushtaq.smartreceiptscanner.core.data.ExchangeRateStore
 import com.mmushtaq.smartreceiptscanner.core.data.ReceiptRepository
 import com.mmushtaq.smartreceiptscanner.core.export.JsonBackup
 import com.mmushtaq.smartreceiptscanner.core.parser.MerchantPatternStore
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val repo: ReceiptRepository,
-    private val patternStore: MerchantPatternStore
+    private val patternStore: MerchantPatternStore,
+    private val rateStore: ExchangeRateStore
 ) : ViewModel() {
 
     sealed interface BackupState {
@@ -26,6 +28,13 @@ class SettingsViewModel(
 
     private val _state = MutableStateFlow<BackupState>(BackupState.Idle)
     val state: StateFlow<BackupState> = _state
+
+    val baseCurrency: StateFlow<String> = rateStore.baseCurrency
+    val rates: StateFlow<Map<String, Double>> = rateStore.rates
+
+    fun setBaseCurrency(code: String) = rateStore.setBaseCurrency(code)
+    fun setRate(currency: String, unitsOfBasePerUnit: Double) = rateStore.setRate(currency, unitsOfBasePerUnit)
+    fun removeRate(currency: String) = rateStore.removeRate(currency)
 
     fun backup(context: Context) {
         _state.value = BackupState.Working

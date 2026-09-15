@@ -83,4 +83,41 @@ class CsvExporterTest {
         assertEquals("\"a\"\"b\"", CsvExporter.csvEscape("a\"b"))
         assertEquals("\"a\nb\"", CsvExporter.csvEscape("a\nb"))
     }
+
+    @Test
+    fun no_converted_column_when_baseCurrency_not_provided() {
+        val csv = CsvExporter.toCsvString(listOf(receipt()))
+        assertEquals("Merchant,Date,Total,Currency,Category", csv.trim().lines()[0])
+    }
+
+    @Test
+    fun converted_column_added_when_baseCurrency_provided() {
+        val csv = CsvExporter.toCsvString(listOf(receipt()), baseCurrency = "PKR", rates = emptyMap())
+        assertEquals("Merchant,Date,Total,Currency,Category,Converted Total (PKR)", csv.trim().lines()[0])
+    }
+
+    @Test
+    fun convertedTotalText_is_identity_for_base_currency() {
+        val text = CsvExporter.convertedTotalText(40000L, "PKR", "PKR", emptyMap())
+        assertEquals("400.00", text)
+    }
+
+    @Test
+    fun convertedTotalText_converts_using_known_rate() {
+        // 50.00 USD * 278.5 = 13925.00
+        val text = CsvExporter.convertedTotalText(5000L, "USD", "PKR", mapOf("USD" to 278.5))
+        assertEquals("13925.00", text)
+    }
+
+    @Test
+    fun convertedTotalText_is_blank_when_rate_unknown() {
+        val text = CsvExporter.convertedTotalText(5000L, "EUR", "PKR", mapOf("USD" to 278.5))
+        assertEquals("", text)
+    }
+
+    @Test
+    fun convertedTotalText_is_blank_for_null_amount_or_currency() {
+        assertEquals("", CsvExporter.convertedTotalText(null, "USD", "PKR", emptyMap()))
+        assertEquals("", CsvExporter.convertedTotalText(5000L, null, "PKR", emptyMap()))
+    }
 }
