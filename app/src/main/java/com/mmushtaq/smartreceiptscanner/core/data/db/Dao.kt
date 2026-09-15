@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 /** Projection for spend-by-category summaries (e.g. Home screen monthly breakdown). */
 data class CategoryTotal(
     val category: String?,
+    val currency: String?,
     val totalMinor: Long,
     val count: Int
 )
@@ -32,10 +33,10 @@ interface ReceiptDao {
 
     @Query(
         """
-        SELECT category, SUM(COALESCE(totalMinor, 0)) AS totalMinor, COUNT(*) AS count
+        SELECT category, currency, SUM(COALESCE(totalMinor, 0)) AS totalMinor, COUNT(*) AS count
         FROM receipts
         WHERE createdAt >= :from AND createdAt < :to
-        GROUP BY category
+        GROUP BY category, currency
         """
     )
     fun observeCategoryTotals(from: Long, to: Long): Flow<List<CategoryTotal>>

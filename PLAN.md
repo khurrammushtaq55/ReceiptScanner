@@ -50,21 +50,21 @@ before reports since better parsed data makes reports more meaningful.
 ## Phase 4 — Multi-Currency & Reports
 **Goal:** meaningful totals/reports when receipts span currencies.
 
-- [ ] `HistoryScreen.kt`: group/subtotal by currency instead of assuming one currency app-wide
-- [ ] New: `core/data/ExchangeRateStore.kt` — simple user-entered rate table (e.g. DataStore-backed key/value: `"USD_TO_PKR" -> 278.5`), no network calls (keeps app "private by design")
-- [ ] `HomeScreen.kt`: optional combined total ("≈ PKR 142,000 combined") shown only if rates are configured, otherwise show per-currency subtotals
-- [ ] New: `SettingsScreen.kt` (may already exist from Phase 2 backup UI — reuse) — section to edit exchange rates
-- [ ] Extend CSV/PDF export from Phase 2 to include a currency column and optional converted-total column
-- [ ] Tests: rate conversion math, rounding to minor units
+- [x] `HistoryScreen.kt`: group/subtotal by currency instead of assuming one currency app-wide
+- [x] New: `core/data/ExchangeRateStore.kt` — simple user-entered rate table (e.g. DataStore-backed key/value: `"USD_TO_PKR" -> 278.5`), no network calls (keeps app "private by design")
+- [x] `HomeScreen.kt`: optional combined total ("≈ PKR 142,000 combined") shown only if rates are configured, otherwise show per-currency subtotals
+- [x] New: `SettingsScreen.kt` (may already exist from Phase 2 backup UI — reuse) — section to edit exchange rates
+- [x] Extend CSV/PDF export from Phase 2 to include a currency column and optional converted-total column
+- [x] Tests: rate conversion math, rounding to minor units
 
 ## Phase 5 — Polish & Quality-of-Life
 **Goal:** lower-effort daily-use improvements.
 
-- [ ] `HistoryScreen.kt`: add amount-range and date-range filters alongside existing text search/month grouping
-- [ ] `HistoryScreen.kt`: multi-select mode — bulk delete, bulk export (feeds into Phase 2 exporter)
-- [ ] Optional: notification/reminder nudging user to scan a receipt shortly after opening the app during typical shopping hours (skip if it feels like scope creep — flag for a future release instead)
-- [ ] Confirm Phase 0 minSdk/targetSdk fix shipped
-- [ ] Full regression pass: capture → OCR → review (with category + confidence flags) → save → history (filters + export) → settings (backup + rates)
+- [x] `HistoryScreen.kt`: add amount-range and date-range filters alongside existing text search/month grouping
+- [x] `HistoryScreen.kt`: multi-select mode — bulk delete, bulk export (feeds into Phase 2 exporter)
+- [x] Optional: notification/reminder nudging user to scan a receipt shortly after opening the app during typical shopping hours (skip if it feels like scope creep — flag for a future release instead)
+- [x] Confirm Phase 0 minSdk/targetSdk fix shipped
+- [x] Full regression pass: capture → OCR → review (with category + confidence flags) → save → history (filters + export) → settings (backup + rates)
 
 ---
 

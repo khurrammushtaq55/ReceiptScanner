@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 import com.mmushtaq.smartreceiptscanner.core.data.Categories
+import com.mmushtaq.smartreceiptscanner.core.data.SpendSummaryBuilder
 import com.mmushtaq.smartreceiptscanner.core.data.db.CategoryTotal
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import org.koin.androidx.compose.koinViewModel
@@ -70,6 +72,8 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val monthlyTotals by vm.monthlyCategoryTotals.collectAsState()
+    val baseCurrency by vm.baseCurrency.collectAsState()
+    val rates by vm.rates.collectAsState()
 
     // --- Launchers ---
     val pickPhoto = rememberLauncherForActivityResult(
@@ -168,7 +172,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            MonthlySummaryCard(monthlyTotals)
+            MonthlySummaryCard(monthlyTotals, baseCurrency, rates)
 
             Spacer(Modifier.height(12.dp))
 
@@ -229,13 +233,11 @@ private fun FeatureCard(
 }
 
 @Composable
-private fun MonthlySummaryCard(totals: List<CategoryTotal>) {
-    val spent = totals.filter { it.totalMinor > 0 }
-    if (spent.isEmpty()) return
-
-    // NOTE: assumes a single currency for now — Phase 4 (multi-currency) revisits this.
-    val currency = "PKR"
-    val grandTotal = spent.sumOf { it.totalMinor }
+private fun MonthlySummaryCard(totals: List<CategoryTotal>, baseCurrency: String, rates: Map<String, Double>) {
+    val summary = remember(totals, baseCurrency, rates) {
+        SpendSummaryBuilder.build(totals, baseCurrency, rates)
+    }
+    if (summary.byCurrency.isEmpty()) return
 
     ElevatedCard(
         modifier = Modifier
@@ -249,18 +251,47 @@ private fun MonthlySummaryCard(totals: List<CategoryTotal>) {
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(Modifier.height(4.dp))
-            Text(grandTotal.formatMinor(currency), style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(14.dp))
 
-            spent.sortedByDescending { it.totalMinor }.forEach { t ->
-                val cat = Categories.byId(t.category)
-                CategoryBar(
-                    label = cat.label,
-                    color = cat.color,
-                    amountText = t.totalMinor.formatMinor(currency),
-                    fraction = if (grandTotal > 0) t.totalMinor / grandTotal.toFloat() else 0f
+            val combinedTotal = summary.combinedTotalMinor
+            val combinedCategories = summary.combinedCategoryTotals
+
+            if (combinedTotal != null && combinedCategories != null) {
+                Text(combinedTotal.formatMinor(summary.baseCurrency), style = MaterialTheme.typography.headlineSmall)
+                if (summary.byCurrency.size > 1) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        "Combined from ${summary.byCurrency.size} currencies",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+
+                combinedCategories.forEach { c ->
+                    val cat = Categories.byId(c.category)
+                    CategoryBar(
+                        label = cat.label,
+                        color = cat.color,
+                        amountText = c.totalMinor.formatMinor(summary.baseCurrency),
+                        fraction = if (combinedTotal > 0) c.totalMinor / combinedTotal.toFloat() else 0f
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+            } else {
+                // Can't safely combine yet — show per-currency subtotals instead of misleading bars.
+                summary.byCurrency.forEach { group ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(group.currency, style = MaterialTheme.typography.bodyMedium)
+                        Text(group.totalMinor.formatMinor(group.currency), style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "Add exchange rates in Settings to see a combined total.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(8.dp))
             }
         }
     }
