@@ -31,6 +31,7 @@ import com.mmushtaq.smartreceiptscanner.core.data.Categories
 import com.mmushtaq.smartreceiptscanner.core.parser.ReceiptParser
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
 import com.mmushtaq.smartreceiptscanner.core.util.parseAmountInputToMinor
+import androidx.compose.ui.tooling.preview.Preview
 import com.mmushtaq.smartreceiptscanner.scan.OcrViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -50,18 +51,57 @@ fun ReviewScreen(
     val bmp by remember(imageUri) { mutableStateOf(loadPreviewBitmap(contentResolver, imageUri)) }
     LaunchedEffect(imageUri) { vm.runOcr(imageUri) }
 
+    val state by vm.state.collectAsState()
+
+    ReviewContent(
+        bmp = bmp,
+        state = state,
+        onDone = onDone,
+        onSave = { merchant, dateText, currency, totalText, category ->
+            val parsedDate = runCatching {
+                if (dateText.isBlank()) null
+                else SimpleDateFormat(
+                    "dd MMM yyyy",
+                    Locale.getDefault()
+                ).parse(dateText)?.time
+            }.getOrNull()
+
+            val totalMinor = parseAmountInputToMinor(totalText, currency)
+
+            vm.updateEdit {
+                it.copy(
+                    merchant = merchant,
+                    dateEpochMs = parsedDate,
+                    currency = currency.ifBlank { "PKR" },
+                    totalMinor = totalMinor,
+                    category = category
+                )
+            }
+            vm.save(imageUri)
+        }
+    )
+}
+
+@Composable
+fun ReviewContent(
+    bmp: Bitmap?,
+    state: OcrViewModel.UiState,
+    onDone: () -> Unit,
+    onSave: (String, String, String, String, String) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        Text("Review", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.review), fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(12.dp))
 
         bmp?.let {
             Image(
                 bitmap = it.asImageBitmap(),
-                contentDescription = "Captured Receipt",
+                contentDescription = stringResource(R.string.captured_receipt),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp)
@@ -78,7 +118,7 @@ fun ReviewScreen(
         )
         Spacer(Modifier.height(12.dp))
 
-        when (val s = vm.state.collectAsState().value) {
+        when (val s = state) {
             OcrViewModel.UiState.Idle, OcrViewModel.UiState.Loading -> {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                     CircularProgressIndicator()
@@ -86,7 +126,7 @@ fun ReviewScreen(
             }
 
             is OcrViewModel.UiState.Error -> {
-                Text("OCR Error: ${s.message}")
+                Text(stringResource(R.string.ocr_error, s.message))
             }
 
             is OcrViewModel.UiState.Success -> {
@@ -127,7 +167,7 @@ fun ReviewScreen(
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
-                    label = { Text("Date (dd MMM yyyy)") },
+                    label = { Text(stringResource(R.string.date_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -158,7 +198,7 @@ fun ReviewScreen(
                 }
 
                 Spacer(Modifier.height(12.dp))
-                Text("Category", fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.category), fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(Categories.all) { cat ->
@@ -171,14 +211,12 @@ fun ReviewScreen(
                 }
 
                 Spacer(Modifier.height(12.dp))
-                Text("Raw OCR Text", fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.raw_ocr_text), fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 Box(Modifier
-                    .fillMaxWidth()
-                    .weight(1f)) {
+                    .fillMaxWidth()) {
                     Text(
-                        s.rawText.ifBlank { stringResource(R.string.no_text_detected) },
-                        modifier = Modifier.verticalScroll(rememberScrollState())
+                        s.rawText.ifBlank { stringResource(R.string.no_text_detected) }
                     )
                 }
 
@@ -187,32 +225,12 @@ fun ReviewScreen(
                     TextButton(onClick = onDone) { Text(stringResource(R.string.cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
-                        // push edits into VM
-                        val parsedDate = runCatching {
-                            if (dateText.isBlank()) null
-                            else SimpleDateFormat(
-                                "dd MMM yyyy",
-                                Locale.getDefault()
-                            ).parse(dateText)?.time
-                        }.getOrNull()
-
-                        val totalMinor = parseAmountInputToMinor(totalText, currency)
-
-                        vm.updateEdit {
-                            it.copy(
-                                merchant = merchant,
-                                dateEpochMs = parsedDate,
-                                currency = currency.ifBlank { "PKR" },
-                                totalMinor = totalMinor,
-                                category = category
-                            )
-                        }
-                        vm.save(imageUri)
+                        onSave(merchant, dateText, currency, totalText, category)
                     }, enabled = saveEnabled) { Text(stringResource(R.string.save)) }
                 }
             }
 
-            is OcrViewModel.UiState.Saved -> onDone()
+            is OcrViewModel.UiState.Saved -> LaunchedEffect(Unit) { onDone() }
         }
     }
 }
@@ -221,7 +239,7 @@ private fun VerifyHint(show: Boolean) {
     if (show) {
         Spacer(Modifier.height(2.dp))
         Text(
-            "Please verify — low-confidence guess",
+            stringResource(R.string.low_confidence_hint),
             style = MaterialTheme.typography.labelSmall,
             color = Color(0xFFB26A00) // amber, distinct from the theme's error color
         )
@@ -248,5 +266,28 @@ fun loadPreviewBitmap(resolver: ContentResolver, uri: Uri): Bitmap? {
         }
     } catch (_: Exception) {
         null
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ReviewContentPreview() {
+    MaterialTheme {
+        ReviewContent(
+            bmp = null,
+            state = OcrViewModel.UiState.Success(
+                rawText = "SAMPLE RECEIPT TEXT\nSTORE #123\nTOTAL $10.00",
+                edit = OcrViewModel.EditModel(
+                    merchant = "Store #123",
+                    dateEpochMs = System.currentTimeMillis(),
+                    currency = "USD",
+                    totalMinor = 1000L,
+                    taxMinor = 0L,
+                    category = Categories.Groceries.id
+                )
+            ),
+            onDone = {},
+            onSave = { _, _, _, _, _ -> }
+        )
     }
 }

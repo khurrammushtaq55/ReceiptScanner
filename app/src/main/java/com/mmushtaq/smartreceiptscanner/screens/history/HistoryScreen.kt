@@ -65,6 +65,8 @@ import com.mmushtaq.smartreceiptscanner.core.export.CsvExporter
 import com.mmushtaq.smartreceiptscanner.core.export.PdfReportExporter
 import com.mmushtaq.smartreceiptscanner.core.export.ShareUtil
 import com.mmushtaq.smartreceiptscanner.core.util.formatMinor
+import androidx.compose.ui.tooling.preview.Preview
+import com.mmushtaq.smartreceiptscanner.screens.history.RangeFilters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,6 +89,50 @@ fun HistoryScreen(
     val baseCurrency by vm.baseCurrency.collectAsState()
     val rates by vm.rates.collectAsState()
 
+    HistoryContent(
+        items = items,
+        selectionMode = selectionMode,
+        selectedIds = selectedIds,
+        activeRange = activeRange,
+        baseCurrency = baseCurrency,
+        rates = rates,
+        onBack = onBack,
+        onOpenDetail = onOpenDetail,
+        onSetQuery = vm::setQuery,
+        onSetCategoryFilter = vm::setCategoryFilter,
+        onSetAmountRange = vm::setAmountRange,
+        onSetDateRange = vm::setDateRange,
+        onClearRangeFilters = vm::clearRangeFilters,
+        onToggleSelected = { vm.toggleSelected(it) },
+        onSelectAll = { vm.selectAll(items.map { it.id }) },
+        onDeleteSelected = { vm.deleteSelected(items) },
+        onEnterSelectionMode = { vm.enterSelectionMode(it) },
+        onExitSelectionMode = vm::exitSelectionMode
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun HistoryContent(
+    items: List<ReceiptEntity>,
+    selectionMode: Boolean,
+    selectedIds: Set<String>,
+    activeRange: RangeFilters,
+    baseCurrency: String,
+    rates: Map<String, Double>,
+    onBack: () -> Unit,
+    onOpenDetail: (ReceiptEntity) -> Unit,
+    onSetQuery: (String) -> Unit,
+    onSetCategoryFilter: (String?) -> Unit,
+    onSetAmountRange: (Long?, Long?) -> Unit,
+    onSetDateRange: (Long?, Long?) -> Unit,
+    onClearRangeFilters: () -> Unit,
+    onToggleSelected: (String) -> Unit,
+    onSelectAll: () -> Unit,
+    onDeleteSelected: () -> Unit,
+    onEnterSelectionMode: (String?) -> Unit,
+    onExitSelectionMode: () -> Unit
+) {
     var search by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     var exportMenuExpanded by remember { mutableStateOf(false) }
@@ -119,7 +165,7 @@ fun HistoryScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteConfirm = false
-                    vm.deleteSelected(items)
+                    onDeleteSelected()
                 }) { Text("Delete") }
             },
             dismissButton = {
@@ -134,12 +180,12 @@ fun HistoryScreen(
                 TopAppBar(
                     title = { Text("${selectedIds.size} selected") },
                     navigationIcon = {
-                        IconButton(onClick = { vm.exitSelectionMode() }) {
+                        IconButton(onClick = { onExitSelectionMode() }) {
                             Icon(Icons.Default.Close, contentDescription = "Cancel selection")
                         }
                     },
                     actions = {
-                        IconButton(onClick = { vm.selectAll(items.map { it.id }) }) {
+                        IconButton(onClick = { onSelectAll() }) {
                             Icon(Icons.Default.SelectAll, contentDescription = "Select all")
                         }
                         IconButton(
@@ -201,7 +247,7 @@ fun HistoryScreen(
                                 enabled = items.isNotEmpty(),
                                 onClick = {
                                     exportMenuExpanded = false
-                                    vm.enterSelectionMode()
+                                    onEnterSelectionMode(null)
                                 }
                             )
                         }
@@ -220,7 +266,7 @@ fun HistoryScreen(
         ) {
             OutlinedTextField(
                 value = search,
-                onValueChange = { search = it; vm.setQuery(it) },
+                onValueChange = { search = it; onSetQuery(it) },
                 label = { Text(stringResource(R.string.search)) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -237,14 +283,14 @@ fun HistoryScreen(
                 item {
                     FilterChip(
                         selected = selectedCategory == null,
-                        onClick = { selectedCategory = null; vm.setCategoryFilter(null) },
+                        onClick = { selectedCategory = null; onSetCategoryFilter(null) },
                         label = { Text("All") }
                     )
                 }
                 items(Categories.all) { cat ->
                     FilterChip(
                         selected = selectedCategory == cat.id,
-                        onClick = { selectedCategory = cat.id; vm.setCategoryFilter(cat.id) },
+                        onClick = { selectedCategory = cat.id; onSetCategoryFilter(cat.id) },
                         label = { Text(cat.label) }
                     )
                 }
@@ -254,10 +300,10 @@ fun HistoryScreen(
                 RangeFiltersPanel(
                     initial = activeRange,
                     onApply = { min, max, from, to ->
-                        vm.setAmountRange(min, max)
-                        vm.setDateRange(from, to)
+                        onSetAmountRange(min, max)
+                        onSetDateRange(from, to)
                     },
-                    onClear = { vm.clearRangeFilters() }
+                    onClear = { onClearRangeFilters() }
                 )
             }
 
@@ -278,10 +324,10 @@ fun HistoryScreen(
                             selectionMode = selectionMode,
                             selected = r.id in selectedIds,
                             onClick = {
-                                if (selectionMode) vm.toggleSelected(r.id) else onOpenDetail(r)
+                                if (selectionMode) onToggleSelected(r.id) else onOpenDetail(r)
                             },
                             onLongClick = {
-                                if (!selectionMode) vm.enterSelectionMode(r.id)
+                                if (!selectionMode) onEnterSelectionMode(r.id)
                             }
                         )
                     }
@@ -459,3 +505,42 @@ fun Long.formatDate(
     pattern: String = "dd MMM yyyy",
     locale: Locale = Locale.getDefault()
 ): String = SimpleDateFormat(pattern, locale).format(Date(this))
+
+@Preview(showBackground = true)
+@Composable
+fun HistoryContentPreview() {
+    MaterialTheme {
+        HistoryContent(
+            items = listOf(
+                ReceiptEntity(
+                    id = "1",
+                    imageUri = "",
+                    rawText = "Receipt 1",
+                    createdAt = System.currentTimeMillis(),
+                    dateEpochMs = System.currentTimeMillis(),
+                    merchant = "Store A",
+                    totalMinor = 1234L,
+                    currency = "USD",
+                    category = Categories.Groceries.id
+                )
+            ),
+            selectionMode = false,
+            selectedIds = emptySet(),
+            activeRange = RangeFilters(),
+            baseCurrency = "USD",
+            rates = emptyMap(),
+            onBack = {},
+            onOpenDetail = {},
+            onSetQuery = {},
+            onSetCategoryFilter = {},
+            onSetAmountRange = { _, _ -> },
+            onSetDateRange = { _, _ -> },
+            onClearRangeFilters = {},
+            onToggleSelected = {},
+            onSelectAll = {},
+            onDeleteSelected = {},
+            onEnterSelectionMode = {},
+            onExitSelectionMode = {}
+        )
+    }
+}

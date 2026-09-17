@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.core.export.ShareUtil
 import org.koin.androidx.compose.koinViewModel
@@ -70,6 +71,32 @@ fun SettingsScreen(
         }
     }
 
+    SettingsContent(
+        state = state,
+        baseCurrency = baseCurrency,
+        rates = rates,
+        onBack = onBack,
+        onBackup = { vm.backup(context) },
+        onRestore = { restoreLauncher.launch(arrayOf("application/json")) },
+        onSetBaseCurrency = vm::setBaseCurrency,
+        onSetRate = vm::setRate,
+        onRemoveRate = vm::removeRate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsContent(
+    state: SettingsViewModel.BackupState,
+    baseCurrency: String,
+    rates: Map<String, Double>,
+    onBack: () -> Unit,
+    onBackup: () -> Unit,
+    onRestore: () -> Unit,
+    onSetBaseCurrency: (String) -> Unit,
+    onSetRate: (String, Double) -> Unit,
+    onRemoveRate: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,7 +129,7 @@ fun SettingsScreen(
             val working = state is SettingsViewModel.BackupState.Working
 
             Button(
-                onClick = { vm.backup(context) },
+                onClick = onBackup,
                 enabled = !working,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Backup to JSON") }
@@ -110,7 +137,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             OutlinedButton(
-                onClick = { restoreLauncher.launch(arrayOf("application/json")) },
+                onClick = onRestore,
                 enabled = !working,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Restore from JSON") }
@@ -144,9 +171,9 @@ fun SettingsScreen(
             ExchangeRatesSection(
                 baseCurrency = baseCurrency,
                 rates = rates,
-                onSetBaseCurrency = vm::setBaseCurrency,
-                onSetRate = vm::setRate,
-                onRemoveRate = vm::removeRate
+                onSetBaseCurrency = onSetBaseCurrency,
+                onSetRate = onSetRate,
+                onRemoveRate = onRemoveRate
             )
         }
     }
@@ -245,4 +272,22 @@ private fun ExchangeRatesSection(
         enabled = newCode.length == 3 && parsedRate != null && parsedRate > 0,
         modifier = Modifier.fillMaxWidth()
     ) { Text("Add rate") }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsContentPreview() {
+    MaterialTheme {
+        SettingsContent(
+            state = SettingsViewModel.BackupState.Idle,
+            baseCurrency = "USD",
+            rates = mapOf("PKR" to 280.0),
+            onBack = {},
+            onBackup = {},
+            onRestore = {},
+            onSetBaseCurrency = {},
+            onSetRate = { _, _ -> },
+            onRemoveRate = {}
+        )
+    }
 }

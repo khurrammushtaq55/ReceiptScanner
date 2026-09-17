@@ -2,6 +2,7 @@ package com.mmushtaq.smartreceiptscanner.screens
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -51,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.ads.BannerAd
 import com.mmushtaq.smartreceiptscanner.core.data.Categories
@@ -70,10 +72,45 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val monthlyTotals by vm.monthlyCategoryTotals.collectAsState()
     val baseCurrency by vm.baseCurrency.collectAsState()
     val rates by vm.rates.collectAsState()
+
+    HomeContent(
+        monthlyTotals = monthlyTotals,
+        baseCurrency = baseCurrency,
+        rates = rates,
+        onOpenCamera = onOpenCamera,
+        onImagePicked = onImagePicked,
+        onPdfPicked = onPdfPicked,
+        onOpenHistory = onOpenHistory,
+        onOpenSettings = onOpenSettings,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeContent(
+    monthlyTotals: List<CategoryTotal>,
+    baseCurrency: String,
+    rates: Map<String, Double>,
+    onOpenCamera: () -> Unit,
+    onImagePicked: (Uri) -> Unit,
+    onPdfPicked: (Uri) -> Unit,
+    onOpenHistory: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onOpenCamera()
+        }
+    }
 
     // --- Launchers ---
     val pickPhoto = rememberLauncherForActivityResult(
@@ -102,7 +139,11 @@ fun HomeScreen(
     val actions = listOf(
         HomeAction(stringResource(R.string.camera),
             stringResource(R.string.capture_a_new_receipt), Icons.Outlined.CameraAlt) {
-            onOpenCamera()
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                onOpenCamera()
+            } else {
+                cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
         },
         HomeAction(stringResource(R.string.gallery),
             stringResource(R.string.import_a_photo_of_a_receipt), Icons.Outlined.Collections) {
@@ -340,16 +381,22 @@ private fun takePersistableIfPossible(context: Context, uri: Uri) {
 
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun FeatureCardPreview() {
-//    FeatureCard("Camera", "Capture a new receipt", Icons.Outlined.CameraAlt) { }
-
-    HomeScreen(
-        onOpenCamera = { /*TODO*/ },
-        onImagePicked = { /*TODO*/ },
-        onPdfPicked = { /*TODO*/ },
-        onOpenHistory = { /*TODO*/ },
-        onOpenSettings = { /*TODO*/ }
-    )
+fun HomeContentPreview() {
+    MaterialTheme {
+        HomeContent(
+            monthlyTotals = listOf(
+                CategoryTotal(Categories.Groceries.id, "USD", 5000L, 5),
+                CategoryTotal(Categories.Fuel.id, "USD", 2000L, 2)
+            ),
+            baseCurrency = "USD",
+            rates = emptyMap(),
+            onOpenCamera = {},
+            onImagePicked = {},
+            onPdfPicked = {},
+            onOpenHistory = {},
+            onOpenSettings = {}
+        )
+    }
 }

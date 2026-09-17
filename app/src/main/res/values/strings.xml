@@ -34,6 +34,13 @@
     <string name="no_text_detected" translatable="false">(No text detected)</string>
     <string name="cancel" translatable="false">Cancel</string>
     <string name="save" translatable="false">Save</string>
+    <string name="review" translatable="false">Review</string>
+    <string name="ocr_error" translatable="false">OCR Error: %1$s</string>
+    <string name="date_label" translatable="false">Date (dd MMM yyyy)</string>
+    <string name="category" translatable="false">Category</string>
+    <string name="raw_ocr_text" translatable="false">Raw OCR Text</string>
+    <string name="low_confidence_hint" translatable="false">Please verify — low-confidence guess</string>
+    <string name="captured_receipt" translatable="false">Captured Receipt</string>
 
 
 </resources>

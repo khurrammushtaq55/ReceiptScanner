@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
+import androidx.camera.core.Preview as CameraXPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
@@ -18,11 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
 import com.mmushtaq.smartreceiptscanner.R
 import com.mmushtaq.smartreceiptscanner.util.MediaStoreUtil
 
@@ -68,32 +71,38 @@ fun CaptureScreen(
 private fun CameraPreview(
     onReady: (ImageCapture) -> Unit
 ) {
-    AndroidView(factory = { ctx ->
-        val previewView = PreviewView(ctx).apply {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val previewView = remember {
+        PreviewView(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             scaleType = PreviewView.ScaleType.FILL_CENTER
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
         }
+    }
 
-        val imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .build()
+    LaunchedEffect(lifecycleOwner) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
 
-        val preview = Preview.Builder().build().also {
-            it.setSurfaceProvider(previewView.surfaceProvider)
-        }
+            val preview = CameraXPreview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
 
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
 
-        val providerFuture = ProcessCameraProvider.getInstance(ctx)
-        providerFuture.addListener({
-            val provider = providerFuture.get()
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
             try {
-                provider.unbindAll()
-                provider.bindToLifecycle(
-                    ctx as LifecycleOwner,
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
                     cameraSelector,
                     preview,
                     imageCapture
@@ -102,10 +111,17 @@ private fun CameraPreview(
             } catch (e: Exception) {
                 Log.e("CameraX", "Binding failed", e)
             }
-        }, ContextCompat.getMainExecutor(ctx))
+        }, ContextCompat.getMainExecutor(context))
+    }
 
-        previewView
-    })
+    DisposableEffect(Unit) {
+        onDispose {
+            val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+            cameraProvider.unbindAll()
+        }
+    }
+
+    AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 }
 
 private fun capturePhoto(
